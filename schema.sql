@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
 DROP TABLE IF EXISTS gists CASCADE;
 CREATE TABLE IF NOT EXISTS gists (
   gist_id       uuid      PRIMARY KEY DEFAULT uuid_generate_v1mc(),
-  user_id       text      REFERENCES users (user_id)
+  user_id       text      REFERENCES users (user_id),
   -- head          text      REFERENCES revisions (revision_id),
   name          text,
   description   text,
@@ -30,11 +30,11 @@ CREATE TABLE IF NOT EXISTS revisions (
 );
 
 -- Unique on created_at would also solve this issue
-
-CREATE UNIQUE INDEX first_revision ON revisions USING btree (id) WHERE (parent_id IS NULL);
-
-
-CREATE UNIQUE INDEX subsequent_revision ON revisions USING btree (gist_id, parent_id);
+--
+-- CREATE UNIQUE INDEX first_revision ON revisions USING btree (id) WHERE (parent_id IS NULL);
+--
+--
+-- CREATE UNIQUE INDEX subsequent_revision ON revisions USING btree (gist_id, parent_id);
 
 DROP TABLE IF EXISTS files CASCADE;
 CREATE TABLE IF NOT EXISTS files (
