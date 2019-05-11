@@ -29,8 +29,24 @@ const commands = {
         RETURNING *
       `,
       [email, password_hash, username]
+    ).catch((error) => {
+      if(error.message.includes('duplicate key')) {
+        throw new Error('User with that email address already exists')
+      } else {
+        throw error
+      }
+    })
+    return result.rows[0]
+  },
+  async createGist({ user_id, name, description, private }) {
+    const result = await client.query(
+      `
+        INSERT INTO users (user_id, name, description, private)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *
+      `,
+      [user_id, name, description, private]
     )
-    console.log(result)
     return result.rows[0]
   },
 
@@ -43,6 +59,15 @@ async function main() {
     email: 'fake@fake.com',
     password: 'ilovesamson',
     username: 'samson'
+  })
+
+  console.log({samson})
+
+  const samsonGist = await commands.createGist({
+    user_id: samson.user_id,
+    name: 'Gist Title',
+    description: 'Testing out gists',
+    private: false
   })
 }
 
