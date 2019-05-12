@@ -3,9 +3,9 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE IF NOT EXISTS users (
   user_id       uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
-  email         text UNIQUE,
+  email         text UNIQUE NOT NULL,
   password_hash text,
-  username      text,
+  username      text UNIQUE NOT NULL,
   avatar_url    text
 );
 
@@ -25,6 +25,10 @@ CREATE TABLE IF NOT EXISTS revisions (
   previous_id   uuid REFERENCES revisions (revision_id),
   created_at    timestamp NOT NULL DEFAULT now()
 );
+
+CREATE UNIQUE INDEX first_revision ON revisions USING btree (revision_id) WHERE (previous_id IS NULL);
+-- Each gist's revision can only have one parent
+CREATE UNIQUE INDEX next_revisions ON revisions USING btree (gist_id, previous_id);
 
 DROP TABLE IF EXISTS files CASCADE;
 CREATE TABLE IF NOT EXISTS files (
