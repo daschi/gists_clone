@@ -18,8 +18,6 @@ async function main() {
     username: 'samson'
   })
 
-  console.log({samson})
-
   const samsonGist = await commands.createGist({
     client,
     user_id: samson.user_id,
@@ -27,8 +25,6 @@ async function main() {
     description: 'Testing out gists',
     private: false
   })
-
-  console.log({samsonGist})
 
   const samsonFile = await commands.createFile({
     client,
@@ -38,15 +34,11 @@ async function main() {
     diff: 'This is all the contents of the new file'
   })
 
-  console.log({samsonFile})
-
   const samsonRevision = await commands.createRevision({
     client,
     gist_id: samsonGist.gist_id,
     previous_id: null,
   })
-
-  console.log({samsonRevision})
 
   const samsonRevisionFile = await commands.createRevisionFile({
     client,
@@ -54,8 +46,49 @@ async function main() {
     file_id: samsonFile.file_id,
   })
 
-  console.log({samsonRevisionFile})
+  await createNextRevisions({
+    client,
+    gist: samsonGist,
+    revision: samsonRevision
+  });
+
   return;
+}
+
+async function createNextRevisions({client, gist, revision}) {
+  // User revises gist and edits file 1 and creates file 2
+  const file_1 = await commands.createFile({
+    client,
+    gist_id: gist.gist_id,
+    filename: 'File Title',
+    content: 'This has changes to the file',
+    diff: `-This is all the contents of the new file
+           +This has changes to the file`
+  })
+  const file_2 = await commands.createFile({
+    client,
+    gist_id: gist.gist_id,
+    filename: 'File 2 Title',
+    content: 'File 2 Content',
+    diff: 'File 2 Content'
+  })
+  const next_revision = await commands.createRevision({
+    client,
+    gist_id: gist.gist_id,
+    previous_id: revision.revision_id,
+  })
+
+  // Create revision <-> files join table for new revision
+  await commands.createRevisionFile({
+    client,
+    revision_id: next_revision.revision_id,
+    file_id: file_1.file_id,
+  })
+  await commands.createRevisionFile({
+    client,
+    revision_id: next_revision.revision_id,
+    file_id: file_2.file_id,
+  })
 }
 
 main().then(
