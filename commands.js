@@ -49,14 +49,14 @@ const commands = {
     )
     return result.rows[0]
   },
-  async createFile({ client, gist_id, filename, content, diff }) {
+  async createFile({ client, filename, content, diff }) {
     const result = await client.query(
       `
-        INSERT INTO files (gist_id, filename, content, diff)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO files (filename, content, diff)
+        VALUES ($1, $2, $3)
         RETURNING *
       `,
-      [gist_id, filename, content, diff]
+      [filename, content, diff]
     )
     return result.rows[0]
   },

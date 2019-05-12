@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS revisions (
   previous_id   uuid REFERENCES revisions (revision_id),
   created_at    timestamp NOT NULL DEFAULT now()
 );
-
+CREATE INDEX revisions_by_created_at ON revisions USING btree (created_at DESC);
 CREATE UNIQUE INDEX first_revision ON revisions USING btree (revision_id) WHERE (previous_id IS NULL);
 -- Each gist's revision can only have one parent
 CREATE UNIQUE INDEX next_revisions ON revisions USING btree (gist_id, previous_id);
@@ -33,7 +33,6 @@ CREATE UNIQUE INDEX next_revisions ON revisions USING btree (gist_id, previous_i
 DROP TABLE IF EXISTS files CASCADE;
 CREATE TABLE IF NOT EXISTS files (
   file_id       uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
-  gist_id       uuid REFERENCES gists (gist_id),
   filename      text NOT NULL,
   content       text NOT NULL,
   diff          text
