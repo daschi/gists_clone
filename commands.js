@@ -71,6 +71,26 @@ const commands = {
     )
     return result.rows[0]
   },
+  async updateGist({client, gist, lastRevision, files}) {
+    const nextRevision = await this.createRevision({
+      client,
+      gist_id: gist.gist_id,
+      previous_id: lastRevision.revision_id,
+    })
+    for (const file of files) {
+      const newFile = await this.createFile({
+        client,
+        filename: file.filename,
+        content: file.content,
+        diff: file.diff
+      })
+      await this.createRevisionFile({
+        client,
+        revision_id: nextRevision.revision_id,
+        file_id: newFile.file_id,
+      })
+    }
+  }
 }
 
 module.exports = commands;

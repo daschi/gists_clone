@@ -29,7 +29,7 @@ async function main() {
   const samsonFile = await commands.createFile({
     client,
     gist_id: samsonGist.gist_id,
-    filename: 'File Title',
+    filename: 'example.js',
     content: 'This is all the contents of the new file',
     diff: 'This is all the contents of the new file'
   })
@@ -46,49 +46,25 @@ async function main() {
     file_id: samsonFile.file_id,
   })
 
-  await createNextRevisions({
+  await commands.updateGist({
     client,
     gist: samsonGist,
-    revision: samsonRevision
+    lastRevision: samsonRevision,
+    files: [
+      {
+        filename: 'example.js',
+        content: 'This has changes to the file',
+        diff: `-This is all the contents of the new file\n+This has changes to the file`
+      },
+      {
+        filename: 'next_example.js',
+        content: 'File 2 Content',
+        diff: 'File 2 Content'
+      }
+    ]
   });
 
   return;
-}
-
-async function createNextRevisions({client, gist, revision}) {
-  // User revises gist and edits file 1 and creates file 2
-  const file_1 = await commands.createFile({
-    client,
-    gist_id: gist.gist_id,
-    filename: 'File Title',
-    content: 'This has changes to the file',
-    diff: `-This is all the contents of the new file
-           +This has changes to the file`
-  })
-  const file_2 = await commands.createFile({
-    client,
-    gist_id: gist.gist_id,
-    filename: 'File 2 Title',
-    content: 'File 2 Content',
-    diff: 'File 2 Content'
-  })
-  const next_revision = await commands.createRevision({
-    client,
-    gist_id: gist.gist_id,
-    previous_id: revision.revision_id,
-  })
-
-  // Create revision <-> files join table for new revision
-  await commands.createRevisionFile({
-    client,
-    revision_id: next_revision.revision_id,
-    file_id: file_1.file_id,
-  })
-  await commands.createRevisionFile({
-    client,
-    revision_id: next_revision.revision_id,
-    file_id: file_2.file_id,
-  })
 }
 
 main().then(
