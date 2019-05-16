@@ -52,7 +52,8 @@ CREATE TABLE IF NOT EXISTS comments (
   user_id       uuid REFERENCES users (user_id),
   content       text NOT NULL,
   created_at    timestamp NOT NULL DEFAULT now(),
-  updated_at    timestamp NOT NULL DEFAULT now()
+  updated_at    timestamp,
+  deleted_at    timestamp
 );
 
 DROP TABLE IF EXISTS subscriptions CASCADE;

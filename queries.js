@@ -33,7 +33,13 @@ const queries = {
   async getGist({ client, gist_id }) {
     const result = await client.query(
       `
-        SELECT gist_id, user_id, name, description, secret
+        SELECT gist_id, user_id, name, description, secret, (
+          SELECT revision_id
+          FROM revisions
+          WHERE gist_id = $1
+          ORDER BY created_at DESC
+          LIMIT 1
+        ) as latest_revision_id
         FROM gists
         WHERE gist_id = $1
       `,
