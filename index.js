@@ -1,14 +1,13 @@
 const path = require('path')
 const fs = require('fs-extra')
 
-const { Client } = require('pg')
-const client = new Client({ database: 'apis' })
-
+const db = require('./db')
 const commands = require('./commands')
 const queries = require('./queries')
 
 async function main() {
-  await client.connect();
+  const client = await db.connect()
+
   await commands.resetDb({client});
 
   const samson = await commands.createUser({
@@ -23,7 +22,7 @@ async function main() {
     user_id: samson.user_id,
     name: 'Gist Title',
     description: 'Testing out gists',
-    private: false
+    secret: false
   })
 
   const samsonFile = await commands.createFile({
@@ -64,6 +63,7 @@ async function main() {
     ]
   });
 
+  client.release();
   return;
 }
 
