@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS gists (
   user_id       uuid      REFERENCES users (user_id),
   name          text,
   description   text,
-  private       boolean   DEFAULT FALSE
+  secret        boolean   DEFAULT FALSE
 );
 
 DROP TABLE IF EXISTS revisions CASCADE;
