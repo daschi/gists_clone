@@ -127,6 +127,7 @@ const commands = {
       [comment_id]
     )
   },
+  // WIP UPDATE GIST COMMAND
   async updateGist({client, gist_id, name, description, secret, files}) {
     return await client.tx('updateGist', async client => {
       // const gist = { gist_id, revision_id, files }

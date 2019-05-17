@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS gists (
   name          text,
   description   text,
   secret        boolean   DEFAULT FALSE
+  deleted_at    timestamp
 );
 
 DROP TABLE IF EXISTS revisions CASCADE;
