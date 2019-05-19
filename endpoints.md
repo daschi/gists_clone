@@ -16,11 +16,10 @@ GET /gists + pagination query params
         avatar_url: string  
       },
       stars_count: integer,
-      comments_count: integer,
       name: string,
       description: string,
       created_at, <!-- comes from the revisions model -->
-      files: {
+      preview: {
         url: string, <!-- link to paginated files endpoint -->
         count: integer,
         total: integer,

@@ -1,0 +1,33 @@
+{
+  "name": "apis-052019",
+  "version": "1.0.0",
+  "description": "REST API for gists clone",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "express": "^4.17.0",
+    "express-promise-router": "^3.0.3",
+    "express-validator": "^5.3.1",
+    "fs-extra": "^8.0.0",
+    "knex": "^0.16.5",
+    "morgan": "^1.9.1",
+    "pg": "^7.11.0"
+  },
+  "devDependencies": {
+    "factory-girl": "^5.0.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daschi/gists_clone.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/daschi/gists_clone/issues"
+  },
+  "homepage": "https://github.com/daschi/gists_clone#readme"
+}

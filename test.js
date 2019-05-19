@@ -62,8 +62,6 @@ async function main() {
       }
     ]
   });
-
-  client.release();
   return;
 }
 

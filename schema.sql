@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS gists (
   user_id       uuid      REFERENCES users (user_id),
   name          text,
   description   text,
-  secret        boolean   DEFAULT FALSE
+  secret        boolean   DEFAULT FALSE,
   deleted_at    timestamp
 );
 
@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS files (
 
 DROP TABLE IF EXISTS revision_files CASCADE;
 CREATE TABLE IF NOT EXISTS revision_files (
+  sequence      SERIAL,
   revision_id   uuid REFERENCES revisions (revision_id),
   file_id       uuid REFERENCES files (file_id),
   PRIMARY KEY (revision_id, file_id)

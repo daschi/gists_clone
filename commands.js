@@ -2,6 +2,7 @@ const path = require('path')
 const fs = require('fs-extra')
 const rootDir = path.resolve(__dirname)
 const knex = require('knex')
+const queries = require('./queries')
 
 const commands = {
   async resetDb({client}) {
