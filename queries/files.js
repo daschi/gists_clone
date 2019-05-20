@@ -9,7 +9,8 @@ const queries = {
           f.file_id,
           f.filename,
           f.content,
-          r.created_at
+          r.created_at,
+          r.revision_id
         FROM files f
 
         JOIN revision_files rf

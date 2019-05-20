@@ -1,6 +1,7 @@
 const gists = require('./gists');
 const files = require('./files');
 const users = require('./users');
+const revisions = require('./revisions');
 
 const queries = {
   // Get all a gist's revisions paginated
@@ -63,5 +64,6 @@ module.exports = {
   ...queries,
   ...gists,
   ...files,
-  ...users
+  ...users,
+  ...revisions
 }

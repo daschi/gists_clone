@@ -10,7 +10,7 @@ const helpers = require('./helpers')
 // Add authentication
 // Add authenticed routes for gists
 
-router.get('/', async (req, res) => {
+router.get('/gists', async (req, res) => {
   const { page = 1, limit = 5 } = req.query
 
   const gists = await queries.getGists({
@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
   res.json({page, limit, offset: offset(page, limit), gists})
 })
 
-router.get('/:gist_id', async (req, res) => {
+router.get('/gists/:gist_id', async (req, res) => {
   const { gist_id } = req.params
 
   const gist = await queries.getGist({client, gist_id})
@@ -43,9 +43,9 @@ router.get('/:gist_id', async (req, res) => {
   res.json(gist)
 })
 
-router.get('/:gist_id/files', async (req, res) => {
+router.get('/gists/:gist_id/files', async (req, res) => {
   const { gist_id } = req.params;
-  const { page, limit } = req.query;
+  const { page = 1, limit = 5 } = req.query;
 
   const gist = await queries.getGist({client, gist_id})
 
@@ -64,7 +64,7 @@ router.get('/:gist_id/files', async (req, res) => {
   })
 })
 
-router.get('/:gist_id/files/:file_id', async (req, res) => {
+router.get('/files/:file_id', async (req, res) => {
   const { file_id } = req.params;
 
   // Consider adding revisions_url to
@@ -72,6 +72,25 @@ router.get('/:gist_id/files/:file_id', async (req, res) => {
   const file = await queries.getFile({client, file_id})
 
   res.json(file)
+})
+
+router.get('/files/:file_id/revisions', async (req, res) => {
+  const { file_id } = req.params;
+  const { page = 1, limit = 5 } = req.query;
+  // Consider adding revisions_url to
+  // get list of revisions
+  const file = await queries.getFile({client, file_id})
+  // get file's revision_id
+  const revision_id = file.revision_id
+  // get revision's previous_id, recursively
+  const revisions = await queries.getRevisionsByParentId({
+    client,
+    parent_id: revision_id
+  })
+  // get all files where revision_ids = all previous ids
+  // order by created_at and sequence
+
+  res.json({file, revisions})
 })
 
 module.exports = router
