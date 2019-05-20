@@ -7,62 +7,56 @@ Resources and Basic Actions:
 GET /gists + pagination query params
 {
   page: integer,
-  offset: integer,
   limit: integer,
-  gists: array [
-    gist {
+  gists: [
+    {
+      gist_id: uuid,
+      user_id: uuid,
+      name: string,
+      description: string,
+      latest_revision_id: uuid,
+      created_at,
       user: {
+        user_id: uuid,
+        email: string,
         username: string,
         avatar_url: string  
       },
-      stars_count: integer,
-      name: string,
-      description: string,
-      created_at, <!-- comes from the revisions model -->
-      preview: {
-        url: string, <!-- link to paginated files endpoint -->
-        count: integer,
-        total: integer,
+      file: {
         filename: string,
-        content: string
+        content: string,
+        revision_id: uuid
       }
     }
   ]
 }
 GET /gists/:gist_id
   {
+    gist_id: uuid,
+    user_id: uuid,
+    name: string,
+    description: string,
+    stars_count: integer,
+    comments_count: integer,
+    created_at,
     user: {
+      user_id: uuid,
+      email: string,
       username: string,
       avatar_url: string  
     },
-    stars_count: integer,
-    comments_count: integer,
-    name: string,
-    description: string,
-    created_at, <!-- comes from the revisions model -->
-    files: array [
-      {
-        url: string, <!-- link to paginated files endpoint -->
-        count: integer,
-        total: integer,
-        filename: string,
-        content: string
-      }
-    ]
+    total_files: integer,
+    files_url: string,
+    files: [{ filename: string, content: string }]
   }
 GET /gists/:gist_id/files + pagination query params
   {
     page: integer,
-    offset: integer,
     limit: integer,
-    files: array [
-      {
-        url: string, <!-- link to paginated files endpoint -->
-        count: integer,
-        total: integer,
-        filename: string,
-        content: string
-      }
+    files: {
+      files_url: string, <!-- link to paginated files endpoint -->
+      total: integer,
+      files: [{ filename: string, content: string }]
     ]
   }
 GET /gists/:gist_id/files/:file_id
@@ -71,18 +65,40 @@ GET /gists/:gist_id/files/:file_id
     content: string
   }
 
+GET /files/:file_id/revisions
+{
+  file: {
+    file_id: uuid,
+    filename: string,
+    content: string,
+    created_at: timestamp,
+    revision_id: uuid
+  },
+  totalRevisions: integer,
+  revisions: [
+    {
+      revision_id: uuid,
+      previous_id: uuid,
+      gist_id: uuid,
+      created_at: timestamp
+    },
+    {
+      revision_id: uuid,
+      previous_id: uuid,
+      gist_id: uuid,
+      created_at: timestamp
+    }
+  ]
+}
 GET /gists/:gist_id/revisions + pagination query params
 GET /gists/:gist_id/revisions/:revision_id + pagination query params  
 GET /gists/:gist_id/revisions/:revision_id/files/:file_id
 
-POST /gists/:gist_id
-POST /gists/:gist_id/files/:file_id
+POST /gists/(:gist_id) - idempotency key in header
+POST /gists/:gist_id/files/(:file_id) - idempotency key
 
 PUT /gists/:gist_id
 PUT /gists/:gist_id/files/:file_id
 
 DELETE /gists/:gist_id
 DELETE /gists/:gist_id/files/:file_id
-
-
-Specify the attributes of each resource. If the resource corresponds closely to an entity in your logical model or a table in your schema, which subset of attributes/columns should be exposed? If the attributes are new, how will they be derived from your data? What are the types? Do the attributes used to create or update an instance of a resource match those retrieved? Which of these are optional or required?
