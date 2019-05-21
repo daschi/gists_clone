@@ -2,13 +2,12 @@ const express = require('express');
 const router = require('express-promise-router')();
 const queries = require('../queries')
 const client = require('../db')
-const {offset} = require('../queries/helpers')
 const helpers = require('./helpers')
 
 // TODO:
-// Add Etag header
-// Add authentication
-// Add authenticed routes for gists
+// Add generated hash as Etag header for caching gists files
+// Add authentication and autenticated routes for users to receive their own gists
+// Add PUT / POST / DELETE endpoints
 
 router.get('/gists', async (req, res) => {
   const { page = 1, limit = 5 } = req.query
@@ -24,7 +23,7 @@ router.get('/gists', async (req, res) => {
     helpers.getPreviewForGists(gists)
   ])
 
-  res.json({page, limit, offset: offset(page, limit), gists})
+  res.json({page, limit, gists})
 })
 
 router.get('/gists/:gist_id', async (req, res) => {
@@ -58,7 +57,7 @@ router.get('/gists/:gist_id/files', async (req, res) => {
 
   res.json({
     page,
-    offset: offset(page, limit),
+    limit,
     files: gist.files,
     total_files: gist.total_files
   })
@@ -66,9 +65,7 @@ router.get('/gists/:gist_id/files', async (req, res) => {
 
 router.get('/files/:file_id', async (req, res) => {
   const { file_id } = req.params;
-
-  // Consider adding revisions_url to
-  // get list of revisions
+  // Add a revisions url to get paginated list of file revisions
   const file = await queries.getFile({client, file_id})
 
   res.json(file)
@@ -77,8 +74,7 @@ router.get('/files/:file_id', async (req, res) => {
 router.get('/files/:file_id/revisions', async (req, res) => {
   const { file_id } = req.params;
   const { page = 1, limit = 5 } = req.query;
-  // Consider adding revisions_url to
-  // get list of revisions
+  // Add revisions_url to get next page of revisions
   const file = await queries.getFile({client, file_id})
   // get file's revision_id
   const revision_id = file.revision_id
@@ -87,8 +83,7 @@ router.get('/files/:file_id/revisions', async (req, res) => {
     client,
     parent_id: revision_id
   })
-  // get all files where revision_ids = all previous ids
-  // order by created_at and sequence
+  // order by created_at and file sequence
 
   res.json({file, revisions})
 })

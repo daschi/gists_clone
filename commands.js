@@ -130,11 +130,12 @@ const commands = {
   },
   // WIP UPDATE GIST COMMAND
   async updateGist({client, gist_id, name, description, secret, files}) {
-    return await client.tx('updateGist', async client => {
+    // Update inside a transaction
+    try {
       // const gist = { gist_id, revision_id, files }
       // Check first if gist attrs changed before updating them
-      const gist = getGist({client, gist_id})
-      // check if this works when name/desc/secret are undefined
+      const gist = queries.getGist({client, gist_id})
+
       if(name || description || typeof secret === 'boolean') {
         await client.query(
           knex('gists')
@@ -149,6 +150,8 @@ const commands = {
         gist_id: gist.gist_id,
         previous_id: gist.latest_revision_id,
       })
+
+      // TODO: Only create new file if it is changed
       for (const file of files) {
         const newFile = await this.createFile({
           client,
@@ -162,7 +165,12 @@ const commands = {
           file_id: newFile.file_id,
         })
       }
-    })
+    } catch (error) {
+      await client.query('ROLLBACK')
+      throw error
+    } finally {
+      client.release()
+    }
   }
 }
 
