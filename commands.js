@@ -28,14 +28,14 @@ const commands = {
     })
     return result.rows[0]
   },
-  async createGist({ client, user_id, name, description, secret }) {
+  async createGist({ client, user_id, description, secret }) {
     const result = await client.query(
       `
-        INSERT INTO gists (user_id, name, description, secret)
+        INSERT INTO gists (user_id, description, secret)
         VALUES ($1, $2, $3, $4)
         RETURNING *
       `,
-      [user_id, name, description, secret]
+      [user_id, description, secret]
     )
     return result.rows[0]
   },
@@ -128,50 +128,17 @@ const commands = {
       [comment_id]
     )
   },
-  // WIP UPDATE GIST COMMAND
-  async updateGist({client, gist_id, name, description, secret, files}) {
-    // Update inside a transaction
-    try {
-      // const gist = { gist_id, revision_id, files }
-      // Check first if gist attrs changed before updating them
-      const gist = queries.getGist({client, gist_id})
-
-      if(name || description || typeof secret === 'boolean') {
-        await client.query(
-          knex('gists')
-            .update({name, description, secret})
-            .where({gist_id})
-            .toString()
-        )
-      }
-
-      const nextRevision = await this.createRevision({
-        client,
-        gist_id: gist.gist_id,
-        previous_id: gist.latest_revision_id,
-      })
-
-      // TODO: Only create new file if it is changed
-      for (const file of files) {
-        const newFile = await this.createFile({
-          client,
-          filename: file.filename,
-          content: file.content,
-          diff: file.diff
-        })
-        await this.createRevisionFile({
-          client,
-          revision_id: nextRevision.revision_id,
-          file_id: newFile.file_id,
-        })
-      }
-    } catch (error) {
-      await client.query('ROLLBACK')
-      throw error
-    } finally {
-      client.release()
-    }
-  }
+  async deleteGist({ client, gist_id }) {
+    await client.query(
+      `
+        UPDATE gists
+        SET deleted_at = now()
+        WHERE gist_id = $1
+        AND deleted_at IS NULL
+      `,
+      [gist_id]
+    )
+  },
 }
 
 module.exports = commands;

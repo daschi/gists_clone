@@ -13,7 +13,6 @@ DROP TABLE IF EXISTS gists CASCADE;
 CREATE TABLE IF NOT EXISTS gists (
   gist_id       uuid      PRIMARY KEY DEFAULT uuid_generate_v1mc(),
   user_id       uuid      REFERENCES users (user_id),
-  name          text,
   description   text,
   secret        boolean   DEFAULT FALSE,
   deleted_at    timestamp

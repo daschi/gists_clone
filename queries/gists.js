@@ -8,7 +8,6 @@ const queries = {
       `
         SELECT
           g.gist_id,
-          g.name,
           g.description,
           g.user_id,
           revision.revision_id as latest_revision_id,
@@ -39,7 +38,6 @@ const queries = {
         SELECT
           g.gist_id,
           g.user_id,
-          g.name,
           g.description,
           g.secret,
           revision.revision_id as latest_revision_id,

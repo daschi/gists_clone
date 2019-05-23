@@ -1,6 +1,7 @@
 const express = require('express');
 const router = require('express-promise-router')();
 const queries = require('../queries')
+const commands = require('../commands')
 const client = require('../db')
 const helpers = require('./helpers')
 
@@ -40,6 +41,96 @@ router.get('/gists/:gist_id', async (req, res) => {
   helpers.getFileURL(gist);
 
   res.json(gist)
+})
+
+// Add more error handling and responses for when
+// delete, update, create succeed or fail
+
+router.post('/gists', async (req, res) => {
+  // add idempotency key in headers and add it to the
+  // insert into query
+  const { user_id, description, files, secret } = req.body
+
+  // Wrap all of these in a transaction
+  const gist = await commands.createGist({
+    client,
+    user_id,
+    description,
+    secret: secret === 'true'
+  })
+
+  const revision = await commands.createRevision({
+    client,
+    gist_id: gist.gist_id,
+    previous_id: null
+  })
+
+  for (const file of files) {
+    let newFile = await commands.createFile({
+      client,
+      filename: file.filename,
+      content: file.content,
+      diff: file.content
+    })
+
+    await commands.createRevisionFile({
+      revision_id: revision.revision_id,
+      file_id: newFile.file_id
+    })
+  }
+})
+
+router.put('/gists/:gist_id', async (req, res) => {
+  const { gist_id } = req.params;
+  const { description, files } = req.body;
+
+  const gist = await queries.getGist({client, gist_id})
+
+  // make this better
+  if(gist.deleted_at) { throw new Error('Gist is deleted') }
+
+  const revision = await commands.createRevision({
+    client,
+    gist_id: gist.gist_id,
+    previous_id: gist.latest_revision_id
+  })
+
+  function _fileUpdated(file, newFile) {
+    return file.content !== newFile.content ||
+      file.filename !== newFile.filename
+  }
+
+  for (const file of files) {
+    let nextFile;
+    let existingFile;
+
+    existingFile = await queries.getFile({
+      client, file_id: file.file_id
+    })
+
+    if(_fileUpdated(existingFile, file) || !existingFile) {
+      nextFile = await commands.createFile({
+        client,
+        filename: file.filename,
+        content: file.content,
+        diff: file.content
+      })
+    } else {
+      nextFile = existingFile
+    }
+
+    await commands.createRevisionFile({
+      revision_id: revision.revision_id,
+      file_id: nextFile.file_id
+    })
+  }
+
+})
+
+router.delete('/gists/:gist_id', async (req, res) => {
+  const { gist_id } = req.params;
+
+  await commands.deleteGist({client, gist_id})
 })
 
 router.get('/gists/:gist_id/files', async (req, res) => {
