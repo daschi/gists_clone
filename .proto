@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message Gists {
+  int32 page = 1;
+  int32 limit = 2;
+}
+
+message Gist {
+  string gist_id = 1;
+}

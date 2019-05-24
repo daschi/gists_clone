@@ -4,6 +4,7 @@ const queries = require('../queries')
 const commands = require('../commands')
 const client = require('../db')
 const helpers = require('./helpers')
+const _pb = require('../_pb')
 
 // TODO:
 // Add generated hash as Etag header for caching gists files
@@ -24,7 +25,25 @@ router.get('/gists', async (req, res) => {
     helpers.getPreviewForGists(gists)
   ])
 
-  res.json({page, limit, gists})
+  let message = new _pb.Gists()
+  message.setPage(page)
+  message.setLimit(limit)
+  let bytes = message.serializeBinary()
+  let notBytes = _pb.Gists.deserializeBinary(bytes)
+  console.log(`bytes: ${bytes}`)
+  console.log(`message: ${notBytes}`)
+  res.send(bytes)
+  
+  // console.log(`Accepting: ${req.accepts('protobuf')}`)
+  // if(req.accepts('json')) {
+  //   res.json({page, limit, gists})
+  // } else if (req.accepts('protobuf')) {
+  //   console.log("Accepted protobuf header")
+  //   let protoGists = new _pb.Gists()
+  //
+  //   console.log(protoGists)
+  //   res.send('accepted protobuf')
+  // }
 })
 
 router.get('/gists/:gist_id', async (req, res) => {
