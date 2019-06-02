@@ -26,7 +26,8 @@ const queries = {
     return result.rows[0]
   },
   // Used for GET /gists/:gist_id
-  async getCurrentGistFiles({ client, revision_id, page, pageSize }) {
+  async getCurrentGistFiles({ client, revision_id, page, limit }) {
+    console.log("getCurrentGistFiles", revision_id, page, limit)
     const result = await client.query(
       `
         SELECT f.file_id,
@@ -41,7 +42,7 @@ const queries = {
         LIMIT $2
         OFFSET $3
       `,
-      [revision_id, pageSize, offset(page, pageSize)]
+      [revision_id, limit, offset(page, limit)]
     )
     return result.rows
   },

@@ -30,7 +30,7 @@ const queries = {
     return result.rows[0]
   },
   // GET /users/:user_id/gists
-  async getGistsByUserId({ client, user_id, page, pageSize }) {
+  async getGistsByUserId({ client, user_id, page, limit }) {
     console.log('getGistsByUserId', user_id);
     const result = await client.query(
       `
@@ -40,7 +40,7 @@ const queries = {
         LIMIT $2
         OFFSET $3
       `,
-      [user_id, pageSize, offset(page)]
+      [user_id, limit, offset(page)]
     )
     return result.rows
   },

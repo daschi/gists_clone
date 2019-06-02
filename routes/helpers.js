@@ -22,9 +22,9 @@ const helpers = {
     })
   },
 
-  async getCurrentGistFiles({gist, page, pageSize}) {
+  async getCurrentGistFiles({gist, page, limit}) {
     const revision_id = gist.latest_revision_id;
-    const files = await queries.getCurrentGistFiles({client, revision_id, page, pageSize});
+    const files = await queries.getCurrentGistFiles({client, revision_id, page, limit});
     gist.files = files;
   },
 

@@ -6,7 +6,7 @@ const revisions = require('./revisions');
 const queries = {
   // Get all a gist's revisions paginated
   // GET /gists/:gist_id/revisions ?
-  async getRevisions({ client, gist_id, page }) {
+  async getRevisions({ client, gist_id, page, limit }) {
     const result = await client.query(
       `
         SELECT revision_id, gist_id, previous_id, created_at
@@ -16,7 +16,7 @@ const queries = {
         LIMIT $2
         OFFSET $3
       `,
-      [gist_id, pageSize, offset(page)]
+      [gist_id, limit, offset(page)]
     )
     return result.rows
   },

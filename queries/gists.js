@@ -2,8 +2,8 @@ const {offset} = require('./helpers')
 
 const queries = {
   // get /gists
-  async getGists({ client, page, pageSize }) {
-    console.log('getGists', page, pageSize);
+  async getGists({ client, page, limit }) {
+    console.log('getGists', page, limit);
     const result = await client.query(
       `
         SELECT
@@ -25,7 +25,7 @@ const queries = {
         LIMIT $1
         OFFSET $2
       `,
-      [pageSize, offset(page, pageSize)]
+      [limit, offset(page, limit)]
     )
     return result.rows
   },

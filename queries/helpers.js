@@ -1,5 +1,5 @@
-const offset = function (page, pageSize) {
-  return pageSize * (page - 1)
+const offset = function (page, limit) {
+  return limit * (page - 1)
 }
 
 module.exports = {offset}
