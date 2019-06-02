@@ -1,8 +1,10 @@
 const express = require('express')
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const responseTime = require('response-time');
+const graphQLHTTP = require("express-graphql");
 const routes = require('./routes');
-
+const schema = require('./schema_graphql')
 const app = express()
 
 function defaultErrorHandler(error, req, res, next) {
@@ -18,9 +20,16 @@ function defaultErrorHandler(error, req, res, next) {
 
 app.use(morgan('tiny'));
 
+app.use(responseTime())
+
 app.use(bodyParser.json({ strict: false }));
 
 app.use('/v1', routes);
+
+app.use('/graphql', graphQLHTTP({
+  schema,
+  graphiql: true
+}))
 
 app.use(defaultErrorHandler);
 

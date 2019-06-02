@@ -17,7 +17,7 @@ router.get('/gists', async (req, res) => {
   const gists = await queries.getGists({
     client,
     page,
-    pageSize: limit
+    limit
   })
 
   await Promise.all([
@@ -25,25 +25,38 @@ router.get('/gists', async (req, res) => {
     helpers.getPreviewForGists(gists)
   ])
 
-  let message = new _pb.Gists()
-  message.setPage(page)
-  message.setLimit(limit)
-  let bytes = message.serializeBinary()
-  let notBytes = _pb.Gists.deserializeBinary(bytes)
-  console.log(`bytes: ${bytes}`)
-  console.log(`message: ${notBytes}`)
-  res.send(bytes)
-  
+
+  // curl -X POST \
+  //      -H "Content-Type: application/json" \
+  //      --data '{ "query": "{ gist(gist_id: \"90dd9092-79b4-11e9-99a9-df36dadef2e0\") { gist_id } }" }'
+  // http://localhost:3000/graphql
+
   // console.log(`Accepting: ${req.accepts('protobuf')}`)
-  // if(req.accepts('json')) {
-  //   res.json({page, limit, gists})
-  // } else if (req.accepts('protobuf')) {
-  //   console.log("Accepted protobuf header")
-  //   let protoGists = new _pb.Gists()
-  //
-  //   console.log(protoGists)
-  //   res.send('accepted protobuf')
-  // }
+  const contentType = req.accepts(['application/json', 'application/protobuf', 'json']) || 'json'
+
+  console.log(req.headers)
+
+  console.log({contentType})
+
+  res.set('Content-Type', contentType)
+
+  if(contentType === 'application/json') {
+    res.json({page, limit, gists})
+  } else if (contentType === 'application/protobuf') {
+    console.log("Accepted protobuf header")
+
+    let message = new _pb.Gists()
+
+    message.setPage(page)
+    message.setLimit(limit)
+
+    let bytes = message.serializeBinary()
+    let notBytes = _pb.Gists.deserializeBinary(bytes)
+
+    console.log(`bytes: ${bytes}`)
+    console.log(`message: ${notBytes}`)
+    res.send(bytes)
+  }
 })
 
 router.get('/gists/:gist_id', async (req, res) => {
@@ -53,7 +66,7 @@ router.get('/gists/:gist_id', async (req, res) => {
 
   await Promise.all([
     helpers.getUsersForGists([gist]),
-    helpers.getCurrentGistFiles({gist, page: 1, pageSize: 5}),
+    helpers.getCurrentGistFiles({gist, page: 1, limit: 5}),
     helpers.getCurrentFilesCount({gist})
   ])
 
@@ -159,7 +172,7 @@ router.get('/gists/:gist_id/files', async (req, res) => {
   const gist = await queries.getGist({client, gist_id})
 
   await Promise.all([
-    helpers.getCurrentGistFiles({gist, page, pageSize: limit}),
+    helpers.getCurrentGistFiles({gist, page, limit}),
     helpers.getCurrentFilesCount({gist})
   ])
 
