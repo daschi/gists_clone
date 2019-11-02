@@ -13,7 +13,7 @@
     "fs-extra": "^8.0.0",
     "google-protobuf": "^3.8.0-rc.1",
     "graphql": "^14.3.1",
-    "knex": "^0.16.5",
+    "knex": "^0.19.5",
     "morgan": "^1.9.1",
     "pg": "^7.11.0",
     "response-time": "^2.3.2"
